@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Mapa bicicletas PIMS 2.0</title>
+
+  <script src='https://api.mapbox.com/mapbox-gl-js/v0.42.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v0.42.1/mapbox-gl.css' rel='stylesheet' />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    h2,
+    h3 {
+      margin: 10px;
+      font-size: 1.2em;
+    }
+
+    h3 {
+      font-size: 1em;
+    }
+
+    p {
+      font-size: 0.85em;
+      margin: 10px;
+      text-align: left;
+    }
+
+    /**
+* Create a position for the map
+* on the page */
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    /**
+* Set rules for how the map overlays
+* (info box and legend) will be displayed
+* on the page. */
+
+    .map-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.8);
+      margin-right: 20px;
+      font-family: Arial, sans-serif;
+      overflow: auto;
+      border-radius: 3px;
+    }
+
+    #features {
+      top: 0;
+      height: 100px;
+      margin-top: 20px;
+      width: 250px;
+    }
+
+    #legend {
+      padding: 10px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      line-height: 18px;
+      /*height: 150px;*/
+      margin-bottom: 40px;
+      width: 150px;
+    }
+
+    .legend-key {
+      display: inline-block;
+      border-radius: 20%;
+      width: 10px;
+      height: 10px;
+      margin-right: 5px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div id='map'></div>
+  <div class='map-overlay' id='features'>
+    <h2>US population density</h2>
+    <div id='pd'>
+      <p>Hover over a state!</p>
+    </div>
+  </div>
+  <div class='map-overlay' id='legend'>
+    <h2>Ciclovías:</h2>
+
+  </div>
+
+</body>
+
+<script>
+
+mapboxgl.accessToken = 'pk.eyJ1IjoiaWduYWNpb2FiZSIsImEiOiJsTDV0dWFJIn0.Og513NMky_08_sXUUDsrbA';
+
+//mapbox://styles/ignacioabe/cjamx3z2jd7u32rs6k04kholb
+
+const map = new mapboxgl.Map({
+  container: 'map', // container id
+  style: 'mapbox://styles/ignacioabe/cjamx3z2jd7u32rs6k04kholb' // replace this with your style URL
+});
+
+map.on('load', function() {
+  const capas = ["preexistentes", "mejoradas pims 1", "construídas pims 1", "propuesto pims 2"]
+  const colores = ["#2B39A6", "#8C38DC", "#a91e29", "#388cdc"]
+
+  for (i = 0; i < capas.length; i++) {
+    var capa = capas[i];
+    var color = colores[i];
+    var item = document.createElement('div');
+    var key = document.createElement('span');
+    key.className = 'legend-key';
+    key.style.backgroundColor = color;
+
+    var value = document.createElement('span');
+    value.innerHTML = capa;
+    item.appendChild(key);
+    item.appendChild(value);
+    legend.appendChild(item);
+  }
+
+
+});
+
+
+
+
+
+/*
+preexistente = hsl(233, 59%, 41%), #2B39A6
+
+mejorado = hsl(271, 70%, 54%) #8C38DC
+propuesto pims2 = hsl(355, 70%, 39%) #a91e29
+ejecutado pims1 = hsl(209, 70%, 54%) #388cdc
+*/
+
+
+</script>
+
+</html>
