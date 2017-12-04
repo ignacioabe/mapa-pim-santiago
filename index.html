@@ -2,37 +2,16 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <title>Mapa bicicletas PIMS 2.0</title>
-
-  <script src='https://api.mapbox.com/mapbox-gl-js/v0.42.1/mapbox-gl.js'></script>
-  <link href='https://api.mapbox.com/mapbox-gl-js/v0.42.1/mapbox-gl.css' rel='stylesheet' />
-
+  <meta charset='utf-8' />
+  <title>Capas externas apagables</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.2/mapbox-gl.css' rel='stylesheet' />
   <style>
     body {
       margin: 0;
       padding: 0;
     }
-
-    h2,
-    h3 {
-      margin: 10px;
-      font-size: 1.2em;
-    }
-
-    h3 {
-      font-size: 1em;
-    }
-
-    p {
-      font-size: 0.85em;
-      margin: 10px;
-      text-align: left;
-    }
-
-    /**
-* Create a position for the map
-* on the page */
 
     #map {
       position: absolute;
@@ -40,11 +19,57 @@
       bottom: 0;
       width: 100%;
     }
+  </style>
+</head>
 
-    /**
-* Set rules for how the map overlays
-* (info box and legend) will be displayed
-* on the page. */
+<body>
+
+  <style>
+    #menu {
+      background: #292929;
+      color: #fff;
+      opacity: 0.75;
+      position: absolute;
+      z-index: 1;
+      top: 10px;
+      right: 10px;
+      border-radius: 3px;
+      /*width: 180px;*/
+      border: 1px solid rgba(0, 0, 0, 0.4);
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    #menu a {
+      font-size: 13px;
+      color: #404040;
+      display: block;
+      margin: 0;
+      padding: 0;
+      padding: 10px;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+      text-align: center;
+    }
+
+    #menu a:last-child {
+      border: none;
+    }
+
+    #menu a:hover {
+      background-color: #f8f8f8;
+      color: #404040;
+    }
+
+    #menu a.active {
+      background-color: #3887be;
+      color: #ffffff;
+    }
+
+    #menu a.active:hover {
+      background: #3074a4;
+    }
+
+    /* Set rules for how the map overlays * (info box and legend) will be displayed * on the page. */
 
     .map-overlay {
       position: absolute;
@@ -69,8 +94,8 @@
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
       line-height: 18px;
       /*height: 150px;*/
-      margin-bottom: 40px;
-      width: 150px;
+      /*margin-bottom: 40px;*/
+      width: 180px;
     }
 
     .legend-key {
@@ -82,70 +107,124 @@
     }
   </style>
 
-</head>
-
-<body>
-
-  <div id='map'></div>
-  <div class='map-overlay' id='features'>
-    <h2>US population density</h2>
-    <div id='pd'>
-      <p>Hover over a state!</p>
+  <nav id="menu">
+    <div class='map-overlay' id='legend'>
+      <h2>Ciclovías:</h2>
     </div>
-  </div>
-  <div class='map-overlay' id='legend'>
-    <h2>Ciclovías:</h2>
+  </nav>
+  <div id="map"></div>
 
-  </div>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiaWduYWNpb2FiZSIsImEiOiJsTDV0dWFJIn0.Og513NMky_08_sXUUDsrbA';
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/ignacioabe/cjamx3z2jd7u32rs6k04kholb',
+      zoom: 13,
+      center: [-70.649, -33.460]
+    });
+
+    map.on('load', function() {
+
+      map.addSource('ciclovias', {
+        type: 'vector',
+        url: 'mapbox://ignacioabe.cjamycc0o38zq2qoi8sz2rrpo-1qdct'
+      });
+      map.addLayer({
+        "id": "Ver / Ocultar propuestas",
+        "type": "line",
+        "source": "ciclovias",
+        "source-layer": "MS_ciclovias_comuna",
+        "filter": [
+          "==",
+          "estado",
+          "propuesto pims2"
+        ],
+        "layout": {
+          "line-join": "round",
+          "line-cap": "butt"
+        },
+        "paint": {
+          "line-color": "#a91e29",
+          "line-width": 4,
+          "line-dasharray": [2, 1]
+        }
+      });
+
+      /*
+          map.addSource('contours', {
+              type: 'vector',
+              url: 'mapbox://mapbox.mapbox-terrain-v2'
+          });
+          map.addLayer({
+              'id': 'contours',
+              'type': 'line',
+              'source': 'contours',
+              'source-layer': 'contour',
+              'layout': {
+                  'visibility': 'visible',
+                  'line-join': 'round',
+                  'line-cap': 'round'
+              },
+              'paint': {
+                  'line-color': '#877b59',
+                  'line-width': 1
+              }
+          });
+          */
+    });
+
+// Rutinas del botón para prender o apagar capas
+
+    var toggleableLayerIds = [ /* 'contours',*/ 'Ver / Ocultar propuestas'];
+
+    for (var i = 0; i < toggleableLayerIds.length; i++) {
+      var id = toggleableLayerIds[i];
+
+      var link = document.createElement('a');
+      link.href = '#';
+      link.className = 'active';
+      link.textContent = id;
+
+      link.onclick = function(e) {
+        var clickedLayer = this.textContent;
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+        if (visibility === 'visible') {
+          map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+          this.className = '';
+        } else {
+          this.className = 'active';
+          map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+        }
+      };
+
+      var layers = document.getElementById('menu');
+      layers.appendChild(link);
+    }
+// Rutinas de la leyenda
+
+    const capas = ["Preexistentes", "Mejoradas pims 1", "Construídas PIMS 1", "Propuestas PIMS 2"]
+    const colores = ["#2B39A6", "#8C38DC", "#388cdc", "#a91e29"]
+
+    for (i = 0; i < capas.length; i++) {
+      var capa = capas[i];
+      var color = colores[i];
+      var item = document.createElement('div');
+      var key = document.createElement('span');
+      key.className = 'legend-key';
+      key.style.backgroundColor = color;
+
+      var value = document.createElement('span');
+      value.innerHTML = capa;
+      item.appendChild(key);
+      item.appendChild(value);
+      legend.appendChild(item);
+    }
+  </script>
 
 </body>
-
-<script>
-
-mapboxgl.accessToken = 'pk.eyJ1IjoiaWduYWNpb2FiZSIsImEiOiJsTDV0dWFJIn0.Og513NMky_08_sXUUDsrbA';
-
-//mapbox://styles/ignacioabe/cjamx3z2jd7u32rs6k04kholb
-
-const map = new mapboxgl.Map({
-  container: 'map', // container id
-  style: 'mapbox://styles/ignacioabe/cjamx3z2jd7u32rs6k04kholb' // replace this with your style URL
-});
-
-map.on('load', function() {
-  const capas = ["preexistentes", "mejoradas pims 1", "construídas pims 1", "propuesto pims 2"]
-  const colores = ["#2B39A6", "#8C38DC", "#a91e29", "#388cdc"]
-
-  for (i = 0; i < capas.length; i++) {
-    var capa = capas[i];
-    var color = colores[i];
-    var item = document.createElement('div');
-    var key = document.createElement('span');
-    key.className = 'legend-key';
-    key.style.backgroundColor = color;
-
-    var value = document.createElement('span');
-    value.innerHTML = capa;
-    item.appendChild(key);
-    item.appendChild(value);
-    legend.appendChild(item);
-  }
-
-
-});
-
-
-
-
-
-/*
-preexistente = hsl(233, 59%, 41%), #2B39A6
-
-mejorado = hsl(271, 70%, 54%) #8C38DC
-propuesto pims2 = hsl(355, 70%, 39%) #a91e29
-ejecutado pims1 = hsl(209, 70%, 54%) #388cdc
-*/
-
-
-</script>
 
 </html>
