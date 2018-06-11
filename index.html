@@ -158,6 +158,16 @@
       center: [-70.649, -33.460]
     });
 
+    var geoloc = new mapboxgl.GeolocateControl({
+    positionOptions: {
+        enableHighAccuracy: true
+    },
+    trackUserLocation: true
+    });
+
+    map.addControl(geoloc, "top-left");
+
+
     map.on('load', function() {
 
       map.addSource('ciclovias', {
